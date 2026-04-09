@@ -1,8 +1,8 @@
 <?php
 define("DB_HOST", "localhost");
-define("DB_USER", "root");
-define("DB_PASS", "");
-define("DB_NAME", "cpm-v2");
+define("DB_USER", "revivall_cpmschool");
+define("DB_PASS", "Avalanche@25");
+define("DB_NAME", "revivall_cpm-v2");
 
 // uncomment the line below to switch to a live database
 // define("DB_HOST", "localhost");
