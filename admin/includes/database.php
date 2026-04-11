@@ -38,12 +38,17 @@ class Database
             $this->dbh = new PDO($dsn, $this->user, $this->password, $options);
         } catch (PDOException $err) {
             $this->error = $err->getMessage();
+            die('Database connection failed: ' . $this->error);
         }
     }
 
     //query helper
     public function query($query)
     {
+        if (!$this->dbh) {
+            throw new Exception('Database connection is not available: ' . $this->error);
+        }
+
         $this->stmt = $this->dbh->prepare($query);
     }
 
