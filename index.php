@@ -14,19 +14,6 @@
     <!-- AOS Animation Library -->
     <link href="assets/aos-css.css" rel="stylesheet">
     <link href="assets/theme.css" rel="stylesheet">
-
-    <style>
-        /* Navbar dropdown on hover */
-        .navbar .dropdown:hover>.dropdown-menu {
-            display: block;
-            margin-top: 0;
-        }
-
-        .navbar .dropdown-toggle::after {
-            margin-left: .3rem;
-        }
-    </style>
-
 </head>
 
 <body>
@@ -61,16 +48,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contact</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="student/login.php" class="btn btn-teal">
+                            Student Login
+                        </a>
+                    </li>
                 </ul>
-                <div class="dropdown ms-lg-4">
-                    <a href="#" class="btn btn-teal dropdown-toggle" id="applyNowDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        Login
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="applyNowDropdown">
-                        <li><a class="dropdown-item" href="admin/login.php">Admin Login</a></li>
-                        <li><a class="dropdown-item" href="student/login.php">Student Login</a></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </nav>
@@ -348,9 +331,9 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="fw-bold mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#about" class="text-white opacity-75 text-decoration-none">About Us</a></li>
-                        <li class="mb-2"><a href="#why-choose" class="text-white opacity-75 text-decoration-none">Why CPM</a></li>
-                        <li class="mb-2"><a href="#gallery" class="text-white opacity-75 text-decoration-none">Gallery</a></li>
+                        <li class="mb-2"><a href="admin/" class="text-white opacity-75 text-decoration-none">Admin Login</a></li>
+                        <li class="mb-2"><a href="student/" class="text-white opacity-75 text-decoration-none">Student login</a></li>
+                        <li class="mb-2"><a href="teacher/" class="text-white opacity-75 text-decoration-none">Staff Login</a></li>
                         <li class="mb-2"><a href="#" class="text-white opacity-75 text-decoration-none">Admissions</a></li>
                     </ul>
                 </div>
