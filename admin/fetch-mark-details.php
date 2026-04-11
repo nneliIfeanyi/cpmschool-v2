@@ -4,30 +4,32 @@ error_reporting(0);
 
 include 'includes/database.php';
 include 'includes/functions.php';
-$conn= new Functions();
+$conn = new Functions();
 $output = '';
 
-if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section'])
-&& !empty($_POST['subject'])){
-  
+if (
+    !empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section'])
+    && !empty($_POST['subject'])
+) {
+
     $class = $_POST['class'];
     $exam = $_POST['exam'];
     $section = $_POST['section'];
     $subject = $_POST['subject'];
     $exam_year = $_POST['exam_year'];
 
-     //fetch current section from settings table
+    //fetch current section from settings table
 
-     $sql = "SELECT current_school_session FROM general_settings";
-     $conn->query($sql);
-     $current_school_section = $conn->fetchColumn();
- 
+    $sql = "SELECT current_school_session FROM general_settings";
+    $conn->query($sql);
+    $current_school_section = $conn->fetchColumn();
+
 
     $sql = "SELECT subject_name FROM subjects WHERE id = :id";
     $conn->query($sql);
     $conn->bind(":id", $subject);
     $db_subject = $conn->fetchColumn();
-    
+
     $sql = "SELECT name FROM sections WHERE id = :id";
     $conn->query($sql);
     $conn->bind(":id", $section);
@@ -42,7 +44,7 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
     $zero = 0;
     $total_marks_obtained = '';
 
-    
+
     $count = 1;
     //fetch students names based on the selected class
     $sql = "SELECT * FROM student WHERE classesID = :class AND sectionid =:section ORDER BY name ASC";
@@ -50,11 +52,11 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
     $conn->bind(":class", $class);
     $conn->bind(":section", $section);
     $rowCount = $conn->rowCount();
-    if($rowCount > 0){
+    if ($rowCount > 0) {
 
         $result = $conn->fetchMultiple();
         $output = "<div class='card-body'>";
-        $output.= "<div class='col-md-12 jumbotron'>
+        $output .= "<div class='col-md-12 jumbotron'>
                <h3 class='text-center'>Mark Details</h3>
                <div class='text-center'>
                  <span class='text-center' style='display: inline-block;'>Class: <span>$db_class</span></span><br>
@@ -66,7 +68,7 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
          </div>";
 
         $output .= "<form method='post' action='' id='add-exam-scores'>";
-        $output.= "<div class='table-responsive'>";
+        $output .= "<div class='table-responsive'>";
         $output .= "<table class='table table-bordered table-hover table-stripped' id='teacher'>
                         <thead>
                         <th>#</th>
@@ -78,7 +80,7 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
                         <th>Exam</th>
                     </thead>";
         $output .= "<tbody>";
-        foreach ($result as $student){
+        foreach ($result as $student) {
             //fetch exam and test scores from database if it exists
             $sql = "SELECT * FROM results WHERE name_of_student = :name AND subject=:subject AND class=:class AND section =:section AND school_year =:school_year AND exam =:exam";
             $conn->query($sql);
@@ -91,7 +93,16 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
             $details = $conn->fetchSingle();
             $rowCount = $conn->rowCount();
 
-            if($rowCount > 0){
+            $existing_first_ca_scores = '';
+            $existing_second_ca_scores = '';
+            $existing_exam_scores = '';
+            $score_id = '';
+            $total_first_ca = 0;
+            $total_second_ca = 0;
+            $total_exam_score = 0;
+            $total_marks_obtained = 0;
+
+            if ($rowCount > 0) {
                 $existing_first_ca_scores = $details->first_ca;
                 $existing_second_ca_scores = $details->second_ca;
                 $existing_exam_scores = $details->exam_score;
@@ -147,17 +158,17 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
                 $total_exam_score = $conn->fetchColumn();
 
                 $total_marks_obtained = $total_first_ca + $total_second_ca + $total_exam_score;
-            }//second rowcount if statement
+            } //second rowcount if statement
 
             //fetch students' photo
             $student_image = $student->photo;
-            if(empty($student_image)){
+            if (empty($student_image)) {
                 $student_image = "<img src='images/default.png' width='32' height='32'>";
-            }else{
+            } else {
                 $student_image = "<img src='upload/$student->photo' width='32' height='32'>";
             }
             $reg_no = $student->registerNO;
-            $output.= "<tr>
+            $output .= "<tr>
                      <td>$count</td>
                      <td>$student_image </td>
                      <td><input type='hidden' name='student_name[]' value='$student->name'>$student->name</td>
@@ -174,8 +185,8 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
                 <input type='hidden' name='total_score[]' value='$total_marks_obtained'>
                 <input type='hidden' name='current_school_section[]' value='$current_school_section'>
                 </tr>";
-              $count++;
-        }//first rowcount if statement
+            $count++;
+        } //first rowcount if statement
 
         $output .= "</tbody>";
         $output .= "<tfoot>
@@ -188,19 +199,17 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
                         <th>Exam</th>
                    </tfoot>";
 
-        $output.= "</table>";
-        $output.= "</div>";
+        $output .= "</table>";
+        $output .= "</div>";
         $output .= "<tr><td colspan='4'><input type='submit' name='submit_result' value='Add Mark' class='btn btn-dark'></td></tr>";
         $output .= "</form>";
         $output .= "</div>";
 
         echo $output;
-
-    }else{
+    } else {
         echo "<p style='padding: 30px; text-align: center; '>No Students found for the selected class.</p>";
     }
-
-}else{
+} else {
     echo "<p class='alert alert-danger alert-dismissible fade show text-center' role='alert'>
               <i class='fas fa-ban'></i>
                 Fields marked (*) are required.
@@ -208,5 +217,4 @@ if(!empty($_POST['class']) && !empty($_POST['exam']) && !empty($_POST['section']
                              <span aria-hidden='true'>×</span>
                   </button>
            </p>";
-
 }
