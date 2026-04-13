@@ -7,15 +7,17 @@ include 'includes/functions.php';
 
 $conn = new Functions();
 $redirect = $conn->base_url();
-$back_to_terminal_report = $conn->base_url()."terminal-report";
+$back_to_terminal_report = $conn->base_url() . "terminal-report";
 
-if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
-    AND isset($_GET['class']) AND isset($_GET['section'])) {
+if (
+    isset($_GET['name']) and isset($_GET['exam']) and isset($_GET['year'])
+    and isset($_GET['class']) and isset($_GET['section'])
+) {
     $name = str_replace('-', ' ', $_GET['name']);
     $exam = str_replace('-', ' ', $_GET['exam']);
     $year = $_GET['year'];
-    $new_year = $year - 1 . '/'. $year;
-    $class =str_replace('-', ' ', $_GET['class']);
+    $new_year = $year - 1 . '/' . $year;
+    $class = str_replace('-', ' ', $_GET['class']);
     $section = str_replace('-', ' ', $_GET['section']);
     $zero = 0;
     $sql = "SELECT * FROM results WHERE name_of_student =:student AND first_ca != :zero AND second_ca != :zero AND exam_score != :zero
@@ -39,8 +41,14 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $conn->bind(":exam", $exam);
         $conn->bind(":exam_year", $year);
         $details = $conn->fetchSingle();
-        $teacher_comment = $details->class_teacher_comment;
-        $principal_comment = $details->principal_comment;
+
+        if ($details) {
+            $teacher_comment = $details->class_teacher_comment;
+            $principal_comment = $details->principal_comment;
+        } else {
+            $teacher_comment = '';
+            $principal_comment = '';
+        }
 
         //fetch students' attendance details
         $sql = "SELECT * FROM attendance WHERE student_name=:name AND exam =:exam AND exam_year =:exam_year";
@@ -49,7 +57,12 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $conn->bind(":exam", $exam);
         $conn->bind(":exam_year", $year);
         $details = $conn->fetchSingle();
-        $attendance = $details->attendance;
+
+        if ($details) {
+            $attendance = $details->attendance;
+        } else {
+            $attendance = 0;
+        }
 
         //fetch teachers name for the student class
         $sql = "SELECT teacher_name FROM classes WHERE name =:name";
@@ -95,12 +108,11 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
                 $this->cell(190, 3, "$school_tagline", 0, 1, "C");
 
 
-                if(!empty($school_website)){
+                if (!empty($school_website)) {
                     $this->SetFont('helvetica', 'B', 10);
                     $this->cell(190, 2, "Website:    $school_website", 0, 1, "C");
                     $this->SetFont('helvetica', '');
                     $this->cell(86, 0, '__________________________________________________________________________________________________', 0, '', '', '');
-
                 }
                 $this->Ln();
                 $this->SetFont('helvetica', '');
@@ -138,9 +150,9 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
                 $conn->query($sql);
                 $conn->bind(":name", $name_student);
                 $photo = $conn->fetchColumn();
-                if(empty($photo)){
+                if (empty($photo)) {
                     $img_file = 'upload/default.png';
-                }else{
+                } else {
                     $img_file = "upload/$photo";
                 }
 
@@ -211,8 +223,6 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
                 $this->WriteHtmlCell(40, 20, 70, 16, $html2);
                 $this->WriteHtmlCell(40, 20, 120, 16, $html3);
                 $this->Image($img_file, 170, 28, 32, 32, '', '', '', false, 300, '', false, false, 0);
-
-
             }
 
             public function Footer()
@@ -222,56 +232,53 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
                 $this->Ln(8);
                 $this->SetFont('times', 'B', '10');
                 $this->MultiCell(189, 5, 'TERMINAL REPORT', 0, 'L', 0, 1, '', '', true);
-
             }
-
-
         }
 
 
-// create new PDF document
+        // create new PDF document
         $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-// set document information
+        // set document information
         global $school_name;
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor("$school_name");
         $pdf->SetTitle('Terminal Report');
 
 
-// set default header data
+        // set default header data
         $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
 
-// set header and footer fonts
+        // set header and footer fonts
         $pdf->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
         $pdf->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
-// set default monospaced font
+        // set default monospaced font
         $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
-// set margins
+        // set margins
         $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 
-// set auto page breaks
+        // set auto page breaks
         $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
-// set image scale factor
+        // set image scale factor
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 
-// set some language-dependent strings (optional)
+        // set some language-dependent strings (optional)
         if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
             require_once(dirname(__FILE__) . '/lang/eng.php');
             $pdf->setLanguageArray($l);
         }
 
-// ---------------------------------------------------------
+        // ---------------------------------------------------------
 
-// set font
+        // set font
         $pdf->SetFont('helvetica', '', 10);
 
-// add a page
+        // add a page
         $pdf->AddPage();
         $sql = "SELECT * FROM general_settings";
         $conn->query($sql);
@@ -280,9 +287,9 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $principal_name = $result_details->principal_name;
         $school_stamp = $result_details->school_stamp;
 
-        if(!empty($terminal_report_bg)){
+        if (!empty($terminal_report_bg)) {
             //add background image
-            $url_bg = $redirect."upload/$terminal_report_bg";
+            $url_bg = $redirect . "upload/$terminal_report_bg";
             $pdf->Image("$url_bg", 60, 70, 90);
         }
 
@@ -354,7 +361,7 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
             $remark = $result->note;
             //show the values
             $pdf->Ln(6); //this will reduce the line height of each subject
-//            $pdf->SetTextColor(14, 93,117);
+            //            $pdf->SetTextColor(14, 93,117);
             $pdf->Cell(48, 3, $subject_offered, 0, 0, "L");
             $pdf->Cell(25, 3, $first_ca_score, 0, 0, "L");
             $pdf->Cell(25, 3, $second_ca_score, 0, 0, "L");
@@ -362,11 +369,10 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
             $pdf->Cell(25, 3, $total_score, 0, 0, "L");
             $pdf->Cell(20, 3, $grade, 0, 0, "L");
             $pdf->Cell(20, 3, $remark, 0, 0, "L");
-
         }
         $pdf->Ln(4);
         $pdf->MultiCell(189, 7, '______________________________________________________________________________________________', 0, 'L', 0, 1, '', '', true);
-        $pdf->SetTextColor(14, 93,117);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(48, 4, 'Total', 0, 0, "L");
         $pdf->Cell(25, 4, $total_first_ca_score, 0, 0, "L");
@@ -377,7 +383,7 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         global $total_marks_obtained;
         $pdf->Ln(8);
         $mark_average = round(($total_exam_score + $total_first_ca_score + $total_second_ca_score) / $total_subjects_offered, 2);
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(21, 4, "Percentage: ", 0, 0, "L");
         $pdf->SetFont('times', 'N', '11');
@@ -401,9 +407,9 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $conn->bind(":exam_year", $year);
         $student_position = $conn->fetchColumn();
 
-        if($show_hide_position == 'yes'){
+        if ($show_hide_position == 'yes') {
             //position in class start
-            $pdf->SetTextColor(0, 0,0);
+            $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('times', 'B', '11');
             $pdf->Cell(30, 4, "Position in class: ", 0, 0, "L");
             $pdf->SetFont('times', 'N', '11');
@@ -413,37 +419,37 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $pdf->Ln(6);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(47, 4, "Class Teacher's Comment: ________________________________________________", 0, 0, "L");
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(40, 4, "$teacher_comment", 0, 0, "L");
 
         $pdf->Ln(6);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(40, 4, "Class Teacher's Name: ", 0, 0, "L");
-        $pdf->SetTextColor(14, 93,117);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(40, 5, "$teacher_name", 0, 0, "L");
 
         $pdf->Ln(6);
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(40, 4, "Principal's Comment: ____________________________________________________", 0, 0, "L");
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(40, 4, "$principal_comment", 0, 0, "L");
 
         $pdf->Ln(6);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(40, 4, "Principal's Name: ", 0, 0, "L");
-        $pdf->SetTextColor(14, 93,117);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(40, 4, "$principal_name", 0, 0, "L");
 
         $pdf->Ln(10);
-        $pdf->SetTextColor(14, 93,117);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(21, 5, "Attendance:", 0, 0, 'L', 0);
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(20, 6, "$attendance times", 0, 0, 'L', 0);
 
@@ -451,27 +457,27 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $sql = "SELECT * FROM general_settings";
         $conn->query($sql);
         $result_set = $conn->fetchSingle();
-        $next_term_begins =$result_set->next_term_begins;
+        $next_term_begins = $result_set->next_term_begins;
         $next_term_begins1 = date_create($next_term_begins);
         $new_next_term_begins = date_format($next_term_begins1, 'F d, Y');
         $no_times_school_open = $result_set->no_times_school_open;
         $footer = $result_set->footer;
-//        $pdf->Ln(10);
-        $pdf->SetTextColor(14, 93,117);
+        //        $pdf->Ln(10);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(30, 5, "Next term begins:", 0, 0, 'L', 0);
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(37, 5, "$new_next_term_begins", 0, 0, 'L', 0);
-        $pdf->SetTextColor(14, 93,117);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'B', '11');
         $pdf->Cell(45, 5, "No of times school opened:", 0, 0, 'L', 0);
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(10, 6, "$no_times_school_open times", 0, 0, 'L', 0);
 
         $pdf->Ln(7);
-        $pdf->SetTextColor(14, 93,117);
+        $pdf->SetTextColor(14, 93, 117);
         $pdf->SetFont('times', 'N', '11');
         $pdf->Cell(33, 3, 'Meaning of Grades:', 0, 0, 'L');
         //fetch all available grades from the system
@@ -480,11 +486,11 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $grade_result = $conn->fetchMultiple();
 
 
-        foreach ($grade_result as $student_grading){
+        foreach ($grade_result as $student_grading) {
             $mark_upto = $student_grading->mark_upto;
             $mark_from = $student_grading->mark_from;
             $student_grade = $student_grading->grade_name;
-            $pdf->SetTextColor(0, 0,0);
+            $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('times', 'N', '10');
             $pdf->Cell(20, 3, "$mark_from - $mark_upto($student_grade) ", 0, 0, "L");
         }
@@ -493,11 +499,11 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $conn->query($sql);
         $grade_result = $conn->fetchMultiple();
         $pdf->Ln(4);
-        foreach ($grade_result as $student_grading){
+        foreach ($grade_result as $student_grading) {
             $mark_upto = $student_grading->mark_upto;
             $mark_from = $student_grading->mark_from;
             $student_grade = $student_grading->grade_name;
-            $pdf->SetTextColor(0, 0,0);
+            $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('times', 'N', '10');
             $pdf->Cell(15, 7, "", 0, 0, "L");
             $pdf->Cell(4, 5, "$mark_from - $mark_upto($student_grade) ", 0, 0, "L");
@@ -509,7 +515,7 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $conn->bind(":name", $name);
         $row_count = $conn->rowCount();
 
-        if($row_count > 0){
+        if ($row_count > 0) {
             $student_info = $conn->fetchSingle();
             $dob = $student_info->dob;
             $dob1 = date_create($dob);
@@ -517,27 +523,27 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
             $weight = $student_info->weight;
             $height = $student_info->height;
             $pdf->Ln(8);
-            if(!empty($weight)){
+            if (!empty($weight)) {
                 $pdf->SetFont('times', 'N', '11');
                 $pdf->Cell(15, 5, "Weight: ", 0, 0, "L");
-                $pdf->SetTextColor(14, 93,117);
+                $pdf->SetTextColor(14, 93, 117);
                 $pdf->SetFont('times', 'N', '10');
                 $pdf->Cell(13, 5, "$weight kg", 0, 0, "L");
             }
-            if(!empty($height)){
-                $pdf->SetTextColor(0, 0,0);
+            if (!empty($height)) {
+                $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('times', 'N', '11');
                 $pdf->Cell(13, 6, "Height: ", 0, 0, "L");
-                $pdf->SetTextColor(14, 93,117);
+                $pdf->SetTextColor(14, 93, 117);
                 $pdf->SetFont('times', 'N', '10');
                 $pdf->Cell(13, 6, "$height m", 0, 0, "L");
             }
 
-            if(!empty($new_date)){
-                $pdf->SetTextColor(0, 0,0);
+            if (!empty($new_date)) {
+                $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('times', 'N', '11');
                 $pdf->Cell(23, 6, "Date of Birth: ", 0, 0, "L");
-                $pdf->SetTextColor(14, 93,117);
+                $pdf->SetTextColor(14, 93, 117);
                 $pdf->SetFont('times', 'N', '10');
                 $pdf->Cell(30, 6, "$new_date", 0, 0, "L");
             }
@@ -545,15 +551,15 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
 
         //result analysis
 
-        $pdf->SetTextColor(0, 0,0);
+        $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '11');
         $pdf->Cell(28, 5, "Result Analysis: ", 0, 0, "L");
         $pass_percent = 50;
-        if($mark_average >= $pass_percent){
+        if ($mark_average >= $pass_percent) {
             $pdf->SetTextColor(0, 128, 0);
             $pdf->SetFont('times', 'B', '10');
             $pdf->Cell(16, 5, "Passed", 0, 0, "L");
-        }else{
+        } else {
             $pdf->SetTextColor(255, 0, 0);
             $pdf->SetFont('times', 'B', '10');
             $pdf->Cell(16, 5, "Failed", 0, 0, "L");
@@ -563,9 +569,9 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(50, 5, "(based on 50% and above)", 0, 0, "L");
 
-        if(!empty($school_stamp)){
+        if (!empty($school_stamp)) {
             //add school stamp image
-            $url_bg = $redirect."upload/$school_stamp";
+            $url_bg = $redirect . "upload/$school_stamp";
             $pdf->Image("$url_bg", 85, 244, 30);
         }
 
@@ -574,23 +580,21 @@ if(isset($_GET['name']) AND isset($_GET['exam']) AND isset($_GET['year'])
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(37, 5, "", 0, 0, "L");
 
-        $today_date = date('F d, Y') .' at exactly '. date('h:sa');
+        $today_date = date('F d, Y') . ' at exactly ' . date('h:sa');
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('times', 'N', '10');
         $pdf->Cell(80, 5, "This result was generated on $today_date", 0, 0, "L");
+    } else {
 
-    }else{
-
-        ?>
+?>
         <script>
             alert('Student results details have not been added yet for the selected term. Pls add marks before viewing terminal report.');
         </script>
         <meta http-equiv="refresh" content="4; <?php echo $back_to_terminal_report; ?>">
-        <?php
+<?php
 
     }
-
-}else{
+} else {
     //return back to index page
 
     header("location: $redirect");
