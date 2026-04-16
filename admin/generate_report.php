@@ -517,73 +517,73 @@ if (
 
         if ($row_count > 0) {
             $student_info = $conn->fetchSingle();
-            $dob = $student_info->dob;
-            $dob1 = date_create($dob);
-            $new_date = date_format($dob1, 'F, d Y');
-            $weight = $student_info->weight;
-            $height = $student_info->height;
+            // $dob = $student_info->dob;
+            // $dob1 = date_create($dob);
+            // $new_date = date_format($dob1, 'F, d Y');
+            // $weight = $student_info->weight;
+            // $height = $student_info->height;
             $pdf->Ln(8);
-            if (!empty($weight)) {
-                $pdf->SetFont('times', 'N', '11');
-                $pdf->Cell(15, 5, "Weight: ", 0, 0, "L");
-                $pdf->SetTextColor(14, 93, 117);
-                $pdf->SetFont('times', 'N', '10');
-                $pdf->Cell(13, 5, "$weight kg", 0, 0, "L");
-            }
-            if (!empty($height)) {
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->SetFont('times', 'N', '11');
-                $pdf->Cell(13, 6, "Height: ", 0, 0, "L");
-                $pdf->SetTextColor(14, 93, 117);
-                $pdf->SetFont('times', 'N', '10');
-                $pdf->Cell(13, 6, "$height m", 0, 0, "L");
-            }
+            // if (!empty($weight)) {
+            //     $pdf->SetFont('times', 'N', '11');
+            //     $pdf->Cell(15, 5, "Weight: ", 0, 0, "L");
+            //     $pdf->SetTextColor(14, 93, 117);
+            //     $pdf->SetFont('times', 'N', '10');
+            //     $pdf->Cell(13, 5, "$weight kg", 0, 0, "L");
+            // }
+            // if (!empty($height)) {
+            //     $pdf->SetTextColor(0, 0, 0);
+            //     $pdf->SetFont('times', 'N', '11');
+            //     $pdf->Cell(13, 6, "Height: ", 0, 0, "L");
+            //     $pdf->SetTextColor(14, 93, 117);
+            //     $pdf->SetFont('times', 'N', '10');
+            //     $pdf->Cell(13, 6, "$height m", 0, 0, "L");
+            // }
 
-            if (!empty($new_date)) {
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->SetFont('times', 'N', '11');
-                $pdf->Cell(23, 6, "Date of Birth: ", 0, 0, "L");
-                $pdf->SetTextColor(14, 93, 117);
-                $pdf->SetFont('times', 'N', '10');
-                $pdf->Cell(30, 6, "$new_date", 0, 0, "L");
-            }
+            // if (!empty($new_date)) {
+            //     $pdf->SetTextColor(0, 0, 0);
+            //     $pdf->SetFont('times', 'N', '11');
+            //     $pdf->Cell(23, 6, "Date of Birth: ", 0, 0, "L");
+            //     $pdf->SetTextColor(14, 93, 117);
+            //     $pdf->SetFont('times', 'N', '10');
+            //     $pdf->Cell(30, 6, "$new_date", 0, 0, "L");
+            // }
         }
 
         //result analysis
 
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('times', 'N', '11');
-        $pdf->Cell(28, 5, "Result Analysis: ", 0, 0, "L");
-        $pass_percent = 50;
-        if ($mark_average >= $pass_percent) {
-            $pdf->SetTextColor(0, 128, 0);
-            $pdf->SetFont('times', 'B', '10');
-            $pdf->Cell(16, 5, "Passed", 0, 0, "L");
-        } else {
-            $pdf->SetTextColor(255, 0, 0);
-            $pdf->SetFont('times', 'B', '10');
-            $pdf->Cell(16, 5, "Failed", 0, 0, "L");
-        }
+        // $pdf->SetTextColor(0, 0, 0);
+        // $pdf->SetFont('times', 'N', '11');
+        // $pdf->Cell(28, 5, "Result Analysis: ", 0, 0, "L");
+        // $pass_percent = 50;
+        // if ($mark_average >= $pass_percent) {
+        //     $pdf->SetTextColor(0, 128, 0);
+        //     $pdf->SetFont('times', 'B', '10');
+        //     $pdf->Cell(16, 5, "Passed", 0, 0, "L");
+        // } else {
+        //     $pdf->SetTextColor(255, 0, 0);
+        //     $pdf->SetFont('times', 'B', '10');
+        //     $pdf->Cell(16, 5, "Failed", 0, 0, "L");
+        // }
 
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('times', 'N', '10');
-        $pdf->Cell(50, 5, "(based on 50% and above)", 0, 0, "L");
+        // $pdf->SetTextColor(0, 0, 0);
+        // $pdf->SetFont('times', 'N', '10');
+        // $pdf->Cell(50, 5, "(based on 50% and above)", 0, 0, "L");
 
-        if (!empty($school_stamp)) {
-            //add school stamp image
-            $url_bg = $redirect . "upload/$school_stamp";
-            $pdf->Image("$url_bg", 85, 244, 30);
-        }
+        // if (!empty($school_stamp)) {
+        //     //add school stamp image
+        //     $url_bg = $redirect . "upload/$school_stamp";
+        //     $pdf->Image("$url_bg", 85, 244, 30);
+        // }
 
-        $pdf->Ln(50);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('times', 'N', '10');
-        $pdf->Cell(37, 5, "", 0, 0, "L");
+        // $pdf->Ln(50);
+        // $pdf->SetTextColor(0, 0, 0);
+        // $pdf->SetFont('times', 'N', '10');
+        // $pdf->Cell(37, 5, "", 0, 0, "L");
 
-        $today_date = date('F d, Y') . ' at exactly ' . date('h:sa');
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('times', 'N', '10');
-        $pdf->Cell(80, 5, "This result was generated on $today_date", 0, 0, "L");
+        // $today_date = date('F d, Y') . ' at exactly ' . date('h:sa');
+        // $pdf->SetTextColor(0, 0, 0);
+        // $pdf->SetFont('times', 'N', '10');
+        // $pdf->Cell(80, 5, "This result was generated on $today_date", 0, 0, "L");
     } else {
 
 ?>
